@@ -41,7 +41,7 @@ class Agilent816xb:
 
     # laser functions
 
-    def connectlaser(self, isgpib=True, address=20, iseth=False, ethip="192.168.1.2", ethport=10001):
+    def connectlaser(self, isgpib=True, address=17, iseth=False, ethip="192.168.1.2", ethport=10001):
         if self.visaOK:
             self.gpib = isgpib
             self.gpibAddr = address

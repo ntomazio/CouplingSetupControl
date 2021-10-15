@@ -24,11 +24,11 @@ wth_f = 1535 # stop wavelength in nm
 scan_time = (wth_f-wth_i)/scan_speed
 
 laser.connectlaser()
-laser.setState(1,1)
-laser.setOutputTrigger(1,1)
-laser.setSweep(1,"CONT", wth_i, wth_f, 1, 0, 0, scan_speed)
-laser.setSweepState(1,"Stop") # just to ensure that the laser sweep from a previous run has been stopped before the next sweep starts
-laser.setPwr(1,6)
+laser.setState(0,1)
+laser.setOutputTrigger(0,1)
+laser.setSweep(0,"CONT", wth_i, wth_f, 1, 0, 0, scan_speed)
+laser.setSweepState(0,"Stop") # just to ensure that the laser sweep from a previous run has been stopped before the next sweep starts
+laser.setPwr(0,7)
 
 # --- Initial config for the oscilloscope ---#
 # change these
@@ -39,7 +39,7 @@ sampling_rate = scan_speed*linewidth_pts/linewidth
 osc.connectOSC()
 osc.stop() # just to restart the scope waveforms 
 
-laser.setSweepState(1,"Start") # enable the laser sweep 
+laser.setSweepState(0,"Start") # enable the laser sweep 
 
 osc.run()
 osc.setTimeScale(scan_time/10)
