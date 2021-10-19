@@ -112,7 +112,9 @@ def Acquisition(data_crop=False, plot=True, save=False):
         filepath = filedir + filename
         print('saved data: '+filepath+'.pkl')
         # df.to_parquet(filepath+'.parq', compression='brotli')
-        pickle.dump(df, open(f"{filepath}.pkl", 'wb'))
+        outfile = open(f"{filepath}.pkl", 'wb')
+        pickle.dump(df, outfile)
+        outfile.close()
         
     return df
 
