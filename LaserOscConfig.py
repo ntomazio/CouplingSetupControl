@@ -80,7 +80,7 @@ def Acquisition(data_crop=False, plot=True, save=False):
 
     osc_time = np.linspace(oscstart, oscstop, len(ch1_data))
 
-    df = pd.DataFrame({'time':osc_time, 'trigger_laser': ch1_data, 'cav': ch2_data, 'acetylene': ch3_data, 'MZI': ch4_data})
+    df = pd.DataFrame({'time':osc_time, 'trigger_laser': ch1_data, 'cav': ch2_data, 'acetylene': ch3_data, 'mzi': ch4_data})
 
     # cropping the data might be necessary for the module wavelength_calibration.py to correctly identify the acetylene/hcn ref peaks  
     if data_crop:
@@ -93,14 +93,14 @@ def Acquisition(data_crop=False, plot=True, save=False):
         fig, axspec = plt.subplots(3, sharex=True)
         axspec[0].plot(df['time'].values, df['trigger_laser'].values)
         axspec[1].plot(df['time'].values, df['acetylene'].values)
-        axspec[2].plot(df['time'].values, df['MZI'].values)
+        axspec[2].plot(df['time'].values, df['mzi'].values)
         axspec[2].set_xlabel("Time (s)")
         axspec[0].set_ylabel("Voltage (V)")
         axspec[1].set_ylabel("Voltage (V)")
         axspec[2].set_ylabel("Voltage (V)")
         axspec[0].set_title("Laser Trigger")
         axspec[1].set_title("Acetylene")
-        axspec[2].set_title("MZI")
+        axspec[2].set_title("mzi")
         fig.tight_layout()
 
         plt.show()

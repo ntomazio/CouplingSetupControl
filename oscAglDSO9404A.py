@@ -12,7 +12,8 @@ class OSCDSO9404A:
     gpibAddr = 1
     ip = "192.168.1.2"
     port = 10001
-    usbid = "MY53060106"
+    # usbid = "MY53060106" # 4 GHz scope (big)
+    usbid = "MY52490398" # 1 GHz scope 
     visarm = None
     visaOK = False
     osc = None
@@ -45,7 +46,7 @@ class OSCDSO9404A:
 
     # OSC functions
 
-    def connectOSC(self, isgpib=False, address=18, iseth=False, ethip="192.168.1.2", ethport=10001, isusb=True):
+    def connectOSC(self, isgpib=False, address=17, iseth=False, ethip="192.168.1.2", ethport=10001, isusb=True):
         if self.visaOK:
             self.gpib = isgpib
             self.gpibAddr = address
