@@ -18,7 +18,7 @@ class OSCDSOX3104A:
     osc = None
     oscOK = False
     oscID = ""
-    binary = False
+    binary = True
     traceLength = 0
     trace = "trace1"
     tracen = 0
@@ -81,7 +81,7 @@ class OSCDSOX3104A:
     def initOSC(self, binarymode=True):
         if self.oscOK:
             self.binary = binarymode
-            self.osc.timeout = 10000
+            # self.osc.timeout = 10000
 
             # self.osc.write("DISP:PERS MIN")
             # self.osc.write("ACQ:MODE RTIM")
@@ -223,11 +223,13 @@ class OSCDSOX3104A:
     def singleFinished(self, chan):
         self.osc.write("WAV:SOUR CHAN" + str(chan))
         # ader = int(self.osc.query("ADER?"))
-        ader = 1
         opc = int(self.osc.query("*OPC?"))
         # avs = int(self.osc.query("WAV:COUNT?"))
+        # pder = int(self.osc.query("PDER?"))
         # if ader and opc and ((self.getAvrgState() and avs >= self.getAvrg()) or not self.getAvrgState()):
-        if ader and opc:
+        # if ader and opc:
+        if opc:
+        # if pder:
             return True
         else:
             return False
@@ -246,9 +248,9 @@ class OSCDSOX3104A:
 
     def getBinTrace(self, chan):
         if self.oscOK:
-            nchan = int(np.mod(chan, 4))
-            if nchan == 0:
-                nchan = 4
+            # nchan = int(np.mod(chan, 4))
+            # if nchan == 0:
+            #     nchan = 4
             self.osc.write("WAV:SOUR CHAN" + str(nchan))
             rawdata = self.osc.query_binary_values("WAV:DATA?", datatype="H", is_big_endian=True)
             data = np.array(rawdata)
@@ -272,7 +274,7 @@ class OSCDSOX3104A:
             if nchan == 0:
                 nchan = 4
             self.osc.write("WAV:SOUR CHAN" + str(nchan))
-            self.osc.write(":WAVEFORM:FORMAT ASCii")
+            # self.osc.write(":WAVeform:FORMAT ASCii")
             off = float(self.osc.query("CHAN" + str(nchan) + ":OFFS?"))
 
             data = self.osc.query("WAV:DATA?")
@@ -309,7 +311,7 @@ class OSCDSOX3104A:
         else:
             return np.zeros(self.traceLength), np.zeros(self.traceLength)
 
-    def setEdgeTrigger(self, chan, slope="POS", level=200e-3):
+    def setEdgeTrigger(self, chan, slope="POS", level=1000e-3):
         if self.oscOK:
             self.osc.write("TRIGger:EDGE:SOURce CHAN"+str(chan)) 
             self.osc.write("TRIGger:EDGE:SLOPe "+slope)
