@@ -311,8 +311,10 @@ class OSCDSOX3104A:
         else:
             return np.zeros(self.traceLength), np.zeros(self.traceLength)
 
-    def setEdgeTrigger(self, chan, slope="POS", level=1000e-3):
+    def setEdgeTrigger(self, chan, slope="POS", mode="NORMal", level=1000e-3):
         if self.oscOK:
             self.osc.write("TRIGger:EDGE:SOURce CHAN"+str(chan)) 
             self.osc.write("TRIGger:EDGE:SLOPe "+slope)
+            self.osc.write("TRIGger:SWEep "+mode)
             self.osc.write("TRIGger:LEVel CHAN"+str(chan)+","+str(level))
+    
