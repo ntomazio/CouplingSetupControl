@@ -12,7 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import oscDSOX3104A # oscilloscope 1GHz
 # import oscAglDSO9404A # oscilloscope DSO9404 = 4GHz, big
-import agilent816xb # laser 
+import agilent816xb # laser
 import pickle
 import ivi # the code uses the ivi package only to acquire the waveform
 import controller # NI DAQ
@@ -32,13 +32,13 @@ osc = oscDSOX3104A.OSCDSOX3104A()  # DSOX3104A = 1GHz
 # --- Initial config for the laser scan ---#
 # change these
 scan_speed = 5 # in nm/s
-wth_i = 1555 # start wavelength in nm - min 1450 nm
-wth_f = 1565 # stop wavelength in nm - max 1650 nm
+wth_i = 1530 # start wavelength in nm - min 1450 nm
+wth_f = 1570 # stop wavelength in nm - max 1650 nm
 scan_time = (wth_f-wth_i)/scan_speed
 
 laser.connectlaser()
 laser.setState(0,1)
-laser.setOutputTrigger(0,1,mode="SF")
+laser.setOutputTrigger(0,1,mode="SWST")
 laser.setSweepState(0,"Stop") # just to ensure that the laser sweep from a previous run has been stopped before the next sweep starts
 laser.setSweep(0,"CONT", wth_i, wth_f, 1, 0, 0, scan_speed)
 laser.setPwr(0,7) # in dBm
@@ -137,7 +137,7 @@ if DAQ:
         task.close()
 
 
-    plot = False
+    plot = True
     if plot:
         plt.plot(-0.25+r[0,:]/20, label = "laser trigger")
         plt.plot(0.9+r[1,:],label = "cav")
@@ -153,8 +153,8 @@ if DAQ:
     save = False
     if save:
         # change these
-        filedir = 'C:\\Users\\Lab\\Documents\\Nathalia Tomazio\\python codes\\transmission data\\'
-        filename = '02DEZ21_chip2_3 coupled rings R-2R-R_wg-ring gap 800 nm_ring-ring gap 750 nm_broadband_TM_through port'
+        filedir = 'C:\\Users\\Lab\\Documents\\Nathalia Tomazio\\python codes\\transmission data\\broadband spectra\\'
+        filename = 'test_02DEZ21_chip2_3 coupled rings R-2R-R_wg-ring gap 800 nm_ring-ring gap 750 nm_broadband_TM_through port'
         filepath = filedir + filename
         print('saved data: '+filepath+'.pkl')
         # df.to_parquet(filepath+'.parq', compression='brotli')
