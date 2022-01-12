@@ -50,10 +50,13 @@ osa.ConnectOSA(isgpib = True, address = 5)
 # to prevent OSA from freezing to calibrate
 osa.osa.write(':CALibration:ZERO off')
 
+print('a')
+
 ## Binary mode
 osa.binary = True
 osa.osa.write("format:data real,32")
 
+print('b')
 ## create a vector for the OSA wavelengths
 osa.SetStartWavelength(wav_i_osa)
 osa.SetStopWavelength(wav_f_osa)
@@ -61,10 +64,13 @@ osa.SetSensMode("Mid")
 osa.SingleSweep()
 ended = False
 while not ended:
+    ended = osa.EndedSweep()
     time.sleep(0.1)
 osa.trace = "tra" # 20 dBm with filter
 x_a, y_a = osa.GetData()
 lamda_osa = x_a
+
+print('c')
 
 ## Configure current
 keithley3 = keithley2400.Keithley2400SM() # current controller
@@ -100,6 +106,7 @@ for ind_h1, curr1 in enumerate(current_vec1):
         
         for ind_v, v0 in enumerate(volts):
             _daq_write_voltage(v0)
+            print(f'iteration for heater 1 = {curr1:.2f} mA, heater 3 = {curr3:.2f} mA, and DAQ_voltage = {v0:.2f}')
             try:
                 osa.SingleSweep()
                 ended = False
@@ -132,10 +139,10 @@ keithley1.set_source_current(0)
 keithley3.set_source_current(0)
 
 ## Saving data
-save = False
+save = True
 if save:
     filedir = 'C:\\Users\\Lab\\Documents\\Nathalia Tomazio\\python codes\\transmission data\\C-band_heater control\\R-R-R_molecule 600-550\\'
-    filename = '22-01-10_chip1_R-R-R_wg-ring gap 600 nm_ring-ring gap 550 nm_broadband_TE_drop port_heaterMap_14dBm'
+    filename = '22-01-11_chip1_R-R-R_wg-ring gap 600 nm_ring-ring gap 550 nm_broadband_TE_drop port_heaterMap_14dBm'
     filepath = filedir + filename
     print('saved data: '+filepath+'.nc')
     map_complete1.to_netcdf(filepath+'.nc')
