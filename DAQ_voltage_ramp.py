@@ -12,7 +12,7 @@ _dev_read_T = "Dev1/ai1" # DAQ input channel (Transmission)
 _dev_read_mzi = "Dev1/ai3" # DAQ input channel (MZI)
 _dev_write = "Dev1/ao0" # DAQ output channel
 
-center_wav_osa  = 1555.7
+center_wav_osa  = 1555.65
 span_osa = 1.0
 wav_i_osa = center_wav_osa - span_osa*1/2
 wav_f_osa = wav_i_osa + span_osa
@@ -50,13 +50,9 @@ osa.ConnectOSA(isgpib = True, address = 5)
 # to prevent OSA from freezing to calibrate
 osa.osa.write(':CALibration:ZERO off')
 
-print('a')
+## ASCII or BINARY mode
+osa.SetBinary(False)
 
-## Binary mode
-osa.binary = True
-osa.osa.write("format:data real,32")
-
-print('b')
 ## create a vector for the OSA wavelengths
 osa.SetStartWavelength(wav_i_osa)
 osa.SetStopWavelength(wav_f_osa)
@@ -70,7 +66,6 @@ osa.trace = "tra" # 20 dBm with filter
 x_a, y_a = osa.GetData()
 lamda_osa = x_a
 
-print('c')
 
 ## Configure current
 keithley3 = keithley2400.Keithley2400SM() # current controller
@@ -87,14 +82,18 @@ keithley1.set_compliance_voltage(5) # initialize the compliance voltage [Volts]
 
 ## take data
 # current loops
-current_vec1 = np.arange(31.1, 31.8, 0.1)
-current_vec3 = np.arange(29.9, 30.1, 0.05)
+current_vec1 = np.arange(30, 30.5, 0.1)
+current_vec3 = np.arange(31, 31.5, 0.1)
+# current_vec1 = [30.2]
+# current_vec3 = [31.2]
 # voltage ramp
 step_volt = 0.1
 volts = np.arange(2.0, -(2.0+step_volt), -step_volt)
 # Initialize 4D array
 mapOsayVh3h1 = np.zeros((len(current_vec1), len(current_vec3), len(volts), len(lamda_osa)))
 mapTransmVh3h1 = np.zeros((len(current_vec1), len(current_vec3), len(volts), 2))
+
+# t0 = time.time()
 
 for ind_h1, curr1 in enumerate(current_vec1):
     keithley1.set_source_current(curr1*1e-3) # set current in heater 1
@@ -117,7 +116,18 @@ for ind_h1, curr1 in enumerate(current_vec1):
                 x_a, y_a = osa.GetData()
             except:
                 print(f"Data acquisition failed for heater 1 = {curr1:.2f} mA, heater 3 = {curr3:.2f} mA, and DAQ_voltage = {v0:.2f}")
-            
+                try:
+                    print("2nd attempt")
+                    osa.SingleSweep()
+                    ended = False
+                    while not ended:
+                        ended = osa.EndedSweep()
+                        time.sleep(0.1)
+                    # osa.trace = "tra"
+                    x_a, y_a = osa.GetData()
+                except:
+                    print(f"Data acquisition failed for heater 1 = {curr1:.2f} mA, heater 3 = {curr3:.2f} mA, and DAQ_voltage = {v0:.2f}")
+
             mapOsayVh3h1[ind_h1, ind_h3, ind_v] = y_a
             mapTransmVh3h1[ind_h1, ind_h3, ind_v, 0] = _daq_read_voltage(_dev_read_T)
             time.sleep(1)
@@ -135,14 +145,17 @@ map_complete2 = xr.DataArray(mapTransmVh3h1, dims=["h1_current", "h3_current", "
 osa.CloseOSA()
 print('success!')
 
+# t1 = time.time()
+# print(f"it took {t1-t0:.6f} s to run")
+
 keithley1.set_source_current(0)
 keithley3.set_source_current(0)
 
-## Saving data
+# Saving data
 save = True
 if save:
     filedir = 'C:\\Users\\Lab\\Documents\\Nathalia Tomazio\\python codes\\transmission data\\C-band_heater control\\R-R-R_molecule 600-550\\'
-    filename = '22-01-11_chip1_R-R-R_wg-ring gap 600 nm_ring-ring gap 550 nm_broadband_TE_drop port_heaterMap_14dBm'
+    filename = '22-01-13_chip1_R-R-R_wg-ring gap 600 nm_ring-ring gap 550 nm_TE_drop port_heaterMap_20dBm'
     filepath = filedir + filename
     print('saved data: '+filepath+'.nc')
     map_complete1.to_netcdf(filepath+'.nc')

@@ -9,7 +9,7 @@ class Agilent816xb:
     gpib = True
     eth = False
     usb = False
-    gpibAddr = 20
+    gpibAddr = 17
     ip = "192.168.1.2"
     port = 10001
     visarm = None

@@ -32,8 +32,8 @@ osc = oscDSOX3104A.OSCDSOX3104A()  # DSOX3104A = 1GHz
 # --- Initial config for the laser scan ---#
 # change these
 scan_speed = 5 # in nm/s
-wth_i = 1530 # start wavelength in nm - min 1450 nm
-wth_f = 1570 # stop wavelength in nm - max 1650 nm
+wth_i = 1554 # start wavelength in nm - min 1450 nm
+wth_f = 1560 # stop wavelength in nm - max 1650 nm
 scan_time = (wth_f-wth_i)/scan_speed
 
 laser.connectlaser()
