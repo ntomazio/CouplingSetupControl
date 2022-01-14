@@ -82,8 +82,8 @@ keithley1.set_compliance_voltage(5) # initialize the compliance voltage [Volts]
 
 ## take data
 # current loops
-current_vec1 = np.arange(30, 30.5, 0.1)
-current_vec3 = np.arange(31, 31.5, 0.1)
+current_vec1 = np.arange(30.2,30.6,0.1)
+current_vec3 = np.arange(31.2,31.6,0.1)
 # current_vec1 = [30.2]
 # current_vec3 = [31.2]
 # voltage ramp
@@ -93,7 +93,7 @@ volts = np.arange(2.0, -(2.0+step_volt), -step_volt)
 mapOsayVh3h1 = np.zeros((len(current_vec1), len(current_vec3), len(volts), len(lamda_osa)))
 mapTransmVh3h1 = np.zeros((len(current_vec1), len(current_vec3), len(volts), 2))
 
-# t0 = time.time()
+t0 = time.time()
 
 for ind_h1, curr1 in enumerate(current_vec1):
     keithley1.set_source_current(curr1*1e-3) # set current in heater 1
@@ -106,18 +106,11 @@ for ind_h1, curr1 in enumerate(current_vec1):
         for ind_v, v0 in enumerate(volts):
             _daq_write_voltage(v0)
             print(f'iteration for heater 1 = {curr1:.2f} mA, heater 3 = {curr3:.2f} mA, and DAQ_voltage = {v0:.2f}')
-            try:
-                osa.SingleSweep()
-                ended = False
-                while not ended:
-                    ended = osa.EndedSweep()
-                    time.sleep(0.1)
-                # osa.trace = "tra"
-                x_a, y_a = osa.GetData()
-            except:
-                print(f"Data acquisition failed for heater 1 = {curr1:.2f} mA, heater 3 = {curr3:.2f} mA, and DAQ_voltage = {v0:.2f}")
+
+            acquisition = False
+            attempts = 0
+            while (not acquisition) or (attempts <= 4):
                 try:
-                    print("2nd attempt")
                     osa.SingleSweep()
                     ended = False
                     while not ended:
@@ -125,8 +118,13 @@ for ind_h1, curr1 in enumerate(current_vec1):
                         time.sleep(0.1)
                     # osa.trace = "tra"
                     x_a, y_a = osa.GetData()
+                    acquisition = True
+                    attempts = 100000000
+                    # print('successful data acquisition')
                 except:
                     print(f"Data acquisition failed for heater 1 = {curr1:.2f} mA, heater 3 = {curr3:.2f} mA, and DAQ_voltage = {v0:.2f}")
+                    attempts = attempts+1
+                    time.sleep(0.1)
 
             mapOsayVh3h1[ind_h1, ind_h3, ind_v] = y_a
             mapTransmVh3h1[ind_h1, ind_h3, ind_v, 0] = _daq_read_voltage(_dev_read_T)
@@ -145,21 +143,21 @@ map_complete2 = xr.DataArray(mapTransmVh3h1, dims=["h1_current", "h3_current", "
 osa.CloseOSA()
 print('success!')
 
-# t1 = time.time()
-# print(f"it took {t1-t0:.6f} s to run")
+t1 = time.time()
+print(f"it took {t1-t0:.6f} s to run")
 
 keithley1.set_source_current(0)
 keithley3.set_source_current(0)
 
 # Saving data
-save = True
-if save:
-    filedir = 'C:\\Users\\Lab\\Documents\\Nathalia Tomazio\\python codes\\transmission data\\C-band_heater control\\R-R-R_molecule 600-550\\'
-    filename = '22-01-13_chip1_R-R-R_wg-ring gap 600 nm_ring-ring gap 550 nm_TE_drop port_heaterMap_20dBm'
-    filepath = filedir + filename
-    print('saved data: '+filepath+'.nc')
-    map_complete1.to_netcdf(filepath+'.nc')
-    map_complete2.to_netcdf(filepath+'_transmission.nc')
+# save = True
+# if save:
+#     filedir = 'C:\\Users\\Lab\\Documents\\Nathalia Tomazio\\python codes\\transmission data\\C-band_heater control\\R-R-R_molecule 600-550\\'
+#     filename = '22-01-13_chip1_R-R-R_wg-ring gap 600 nm_ring-ring gap 550 nm_TE_drop port_heaterMap_24dBm'
+#     filepath = filedir + filename
+#     print('saved data: '+filepath+'.nc')
+#     map_complete1.to_netcdf(filepath+'.nc')
+#     map_complete2.to_netcdf(filepath+'_transmission.nc')
 
 # plt.plot(df.iloc[0], df.iloc[1])
 # plt.show()
